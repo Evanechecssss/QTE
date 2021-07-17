@@ -1,0 +1,18 @@
+[
+{
+  "modid": "qte",
+  "name": "QTE",
+  "description": "§l§9Mod for Darvin",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "§l§bhttps://vk.com/evanechecs",
+  "updateUrl": "https://gist.github.com/Evanechecssss/8cc17b71955ae26c71363546bcb33179",
+  "authorList": [
+    "Evanechecssss"
+  ],
+  "credits": "§lThe §l§eForge§r§l and §eFML§r§l guys, for making Forge && §dMcHorse§r§l for all. Thanks to §2TDS for the idea",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

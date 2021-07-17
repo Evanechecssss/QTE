@@ -1,0 +1,11 @@
+{
+  "i": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "qte:i",
+        "stream": true
+      }
+    ]
+  }
+}

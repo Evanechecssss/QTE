@@ -1,0 +1,2 @@
+qte.usage=/qte <keycode> <tick> <delay> <sound> <command>
+command_set.usage=/command_set <name> <command1@command2@......>

@@ -1,0 +1,7 @@
+{
+    "pack": {
+      "description": "qte resources",
+      "pack_format": 3,
+      "_comment": "All resources should be lowercase."
+    }
+}
