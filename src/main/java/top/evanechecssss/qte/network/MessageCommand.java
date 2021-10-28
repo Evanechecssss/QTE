@@ -8,8 +8,11 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import top.evanechecssss.qte.init.KeySounds;
+import top.evanechecssss.qte.util.RecordUtil;
 
+import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class MessageCommand implements IMessage {
     public MessageCommand() {
@@ -47,7 +50,15 @@ public class MessageCommand implements IMessage {
             if (play) {
                 player.playSound(KeySounds.PRESS, 1, 1);
             }
-            server.getCommandManager().executeCommand(server, command);
+            try {
+                List<String> list = RecordUtil.parseCommands(command);
+                list.forEach(s -> {
+                    server.getCommandManager().executeCommand(server, s);
+                });
+            } catch (FileNotFoundException e) {
+
+            }
+
         }
 
         @Override

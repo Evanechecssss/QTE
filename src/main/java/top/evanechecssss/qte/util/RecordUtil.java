@@ -1,65 +1,86 @@
 package top.evanechecssss.qte.util;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
+import com.google.gson.JsonParser;
 import net.minecraftforge.common.DimensionManager;
 import top.evanechecssss.qte.QTE;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class RecordUtil {
 
     public static void createCSFile(String fileName, List<String> list) throws IOException {
         File file = new File(DimensionManager.getCurrentSaveRootDirectory() + "/qte/commandSets/" + fileName + ".json");
+        if (file.exists()) {
+            QTE.getLogger().error("File already exist");
+            return;
+        }
         file.getParentFile().mkdirs();
         file.createNewFile();
         file.getParentFile().mkdirs();
-        Path jsonFile = Paths.get(file.getPath());
-        JsonArray users = new JsonArray();
-        if (Files.isRegularFile(jsonFile)) {
-            try (JsonReader r = new JsonReader(Files.newBufferedReader(jsonFile))) {
-                r.beginArray();
-                while (r.hasNext()) {
-                    JsonObject user = new JsonObject();
-                    r.beginObject();
-                    r.nextName();
-                    user.addProperty("name", r.nextString());
-                    r.nextName();
-                    user.addProperty("surname", r.nextString());
-                    r.nextName();
-                    user.addProperty("age", r.nextInt());
-                    r.endObject();
-                    users.add(user);
-                }
-                r.endArray();
-            }
+        JsonObject object = new JsonObject();
+        JsonArray array = new JsonArray();
+        for (String element : list) {
+            array.add(element);
         }
-        JsonObject user = new JsonObject();
-        user.addProperty("name", list.get(0));
-        user.addProperty("surname", list.get(1));
-        user.addProperty("age", list.get(2));
-        users.add(user);
+        object.add("commands", array);
+        try {
+            FileWriter writer = new FileWriter(file);
+            writer.write(object.toString());
+            writer.flush();
+        } catch (Exception ignored) {
 
-        try (final BufferedWriter w = Files.newBufferedWriter(jsonFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-            w.write(users.toString());
-        } catch (Exception e) {
-            QTE.getLogger().error("ERROR");
         }
     }
 
     public static void removeCSFile(String fileName) throws IOException {
         File commandSet = new File(DimensionManager.getCurrentSaveRootDirectory() + "/qte/commandSets/" + fileName + ".json");
-        commandSet.getParentFile().mkdirs();
         commandSet.delete();
         commandSet.getParentFile().mkdirs();
     }
 
+    public static List<String> parseCommands(String name) throws FileNotFoundException {
+        List<String> list = new ArrayList<>();
+        File file = new File(DimensionManager.getCurrentSaveRootDirectory() + "/qte/commandSets/" + name + ".json");
+        if (!file.exists()) {
+            QTE.getLogger().error("File don't exist");
+            return Collections.emptyList();
+        }
+        JsonArray JSONArray = new JsonParser().parse(new FileReader(file)).getAsJsonObject().get("commands").getAsJsonArray();
+        for (JsonElement element : JSONArray) {
+            list.add(element.getAsString());
+        }
+        return list;
+    }
+
+    public static boolean checkExist(String name) {
+        File file = new File(DimensionManager.getCurrentSaveRootDirectory() + "/qte/commandSets/" + name + ".json");
+
+        return file.exists();
+
+    }
+
+
+    public static String readJSONFile(String name) throws FileNotFoundException {
+        File file = new File(DimensionManager.getCurrentSaveRootDirectory() + "/qte/commandSets/" + name + ".json");
+        if (!file.exists()) {
+            QTE.getLogger().error("File don't exist");
+            return null;
+        }
+        return new FileReader(file).toString();
+    }
+
+    public static List<String> parseJSONString(String string) {
+        List<String> list = new ArrayList<>();
+        JsonArray JSONArray = new JsonParser().parse(string).getAsJsonObject().get("commands").getAsJsonArray();
+        for (JsonElement element : JSONArray) {
+            list.add(element.getAsString());
+        }
+        return list;
+    }
 }

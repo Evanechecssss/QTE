@@ -9,6 +9,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import top.evanechecssss.qte.QTE;
 import top.evanechecssss.qte.command.CommandQTE;
 import top.evanechecssss.qte.command.CommandSets;
+import top.evanechecssss.qte.command.KeyCodes;
 import top.evanechecssss.qte.init.KeySounds;
 
 @Mod.EventBusSubscriber
@@ -28,6 +29,7 @@ public class CommonProxy {
     }
     public void server(FMLServerStartingEvent event) {
         event.registerServerCommand(new CommandQTE());
+        event.registerServerCommand(new KeyCodes());
         event.registerServerCommand(new CommandSets());
     }
 }

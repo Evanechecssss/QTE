@@ -1,2 +1,5 @@
-qte.usage=/qte <keycode> <tick> <delay> <sound> <command>
-command_set.usage=/command_set <name> <command1@command2@......>
+qte.usage=/qte <keycode> <tick> <delay> <sound> <command> <clicks>
+command_set.usage=/command_set <name> (get, <|command1|command2|......|>)
+command_set.err=File is not exist
+command_set.add=File was added
+command_set.notadd=You has invalid commands

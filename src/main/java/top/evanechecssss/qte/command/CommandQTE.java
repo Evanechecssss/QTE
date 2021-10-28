@@ -18,6 +18,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import top.evanechecssss.qte.QTE;
 import top.evanechecssss.qte.network.MessageCommand;
+import top.evanechecssss.qte.util.RecordUtil;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ import java.util.List;
 @ParametersAreNonnullByDefault
 public class CommandQTE extends CommandBase {
     private static ArrayList<CommandQTE.KeyList> commandList = new ArrayList<>();
+    boolean flag1 = true;
+    boolean rel = true;
 
     @Override
     public int getRequiredPermissionLevel() {
@@ -57,23 +60,23 @@ public class CommandQTE extends CommandBase {
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-        if (args.length < 4) {
+        if (args.length != 6) {
             sender.sendMessage(TextComponentHelper.createComponentTranslation(sender, this.getUsage(sender)));
             return;
         }
-        StringBuilder command = new StringBuilder();
-        for (int i = 4; i < args.length; i++) {
-            command.append(args[i]).append(" ");
+        String setName = args[4];
+        if (!RecordUtil.checkExist(setName)) {
+            sender.sendMessage(new TextComponentString("Invalid name of set - " + setName));
         }
         try {
             int intCode = Integer.parseInt(args[0]);
             int tick = Integer.parseInt(args[1]);
             int delay = Integer.parseInt(args[2]);
+            int clicks = Integer.parseInt(args[5]);
             boolean sound = args[3].equalsIgnoreCase("true");
-            sender.sendMessage(new TextComponentString("new Handler was created!\nKeyCode: " + intCode + " \nTick: " + tick + "\nCommand: " + command + "\nDownTime: " + delay + "\nSound: " + sound));
-            addToList(new KeyList(intCode, command.toString(), tick, delay, sound));
+            QTE.getLogger().warn(new KeyList(intCode, setName, tick, delay, sound, clicks).toString());
+            addToList(new KeyList(intCode, setName, tick, delay, sound, clicks));
         } catch (NumberFormatException e) {
-            sender.sendMessage(new TextComponentString("Error " + args[0] + " or " + args[1] + " or " + args[2] + " or " + args[3]));
             sender.sendMessage(TextComponentHelper.createComponentTranslation(sender, this.getUsage(sender)));
         }
 
@@ -126,21 +129,32 @@ public class CommandQTE extends CommandBase {
     }
 
     public void chekKeyBoard(KeyList list, Iterator<KeyList> iterator) {
+
         if (Keyboard.isKeyDown(list.getCode())) {
+            if (rel) {
+                flag1 = true;
+            }
             if (list.getStartTick() < list.getTick()) {
-                if (list.getDelay() == 0) {
+                if (list.getDelay() == 0 && list.getClicks() == 1) {
                     iterator.remove();
                     QTE.getNetwork().sendToServer(new MessageCommand(list.getCommand(), list.getPlaySound()));
                 } else {
                     list.setDelay(list.getDelay() - 1);
+                    if (flag1) {
+                        list.setClicks(list.getClicks() - 1);
+                        flag1 = false;
+                        rel = false;
+                    }
                 }
-
             }
+
         } else if (list.getStartTick() > list.getTick()) {
             iterator.remove();
+            rel = true;
         } else {
             list.setStartTick(list.getStartTick() + 1);
             list.setDelay(list.delayStart);
+            rel = true;
         }
     }
 
@@ -150,16 +164,18 @@ public class CommandQTE extends CommandBase {
         protected int delay;
         protected int delayStart;
         protected int startTick = 0;
+        protected int clicks;
         protected String command;
         protected boolean sound;
 
-        public KeyList(int code, String command, int tick, int delay, boolean sound) {
+        public KeyList(int code, String command, int tick, int delay, boolean sound, int clicks) {
             this.code = code;
             this.command = command;
             this.tick = tick;
             this.delay = delay;
             this.delayStart = delay;
             this.sound = sound;
+            this.clicks = clicks;
         }
 
         public boolean getPlaySound() {
@@ -200,6 +216,17 @@ public class CommandQTE extends CommandBase {
 
         public int getDelay() {
             return delay;
+        }
+
+        public int getClicks() {
+            return clicks;
+        }
+
+        public void setClicks(int clicks) {
+            this.clicks = clicks;
+            if (this.clicks < 1) {
+                this.clicks = 1;
+            }
         }
 
         public int getTick() {
